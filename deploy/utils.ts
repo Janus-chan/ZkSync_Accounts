@@ -1,7 +1,7 @@
 import * as hre from "hardhat";
 import { Provider, Wallet } from "zksync-ethers";
 import { Deployer } from "@matterlabs/hardhat-zksync";
-import { ethers } from "ethers";
+import { ethers,Wallet as etherWallet } from "ethers";
 import { vars } from "hardhat/config";
 
 import "@matterlabs/hardhat-zksync-node/dist/type-extensions";
@@ -266,6 +266,9 @@ export const LOCAL_RICH_WALLETS = [
 function loadPrivateKeyFromHardhatConfig() {
   try {
     return vars.get(PRIVATE_KEY_HARDHAT_CONFIGURATION_VARIABLE_NAME);
+
+    // let privateKey = etherWallet.createRandom().privateKey;
+    // return privateKey
   } catch (error) {
     throw `⛔️ No Hardhat configuration variable found for WALLET_PRIVATE_KEY.
     Run npx hardhat vars set WALLET_PRIVATE_KEY
@@ -274,12 +277,16 @@ function loadPrivateKeyFromHardhatConfig() {
 }
 
 export function logExplorerUrl(address: string, type: "address" | "tx") {
-  if (hre.network.name === "abstractTestnet") {
+  if (hre.network.name === "abstractTestnet" || hre.network.name === "zkSyncSepolia") {
     const explorerUrl = `https://explorer.testnet.abs.xyz/${type}/${address}`;
     const prettyType = type === "address" ? "account" : "transaction";
 
     console.log(
       `🔗 View your ${prettyType} on the Abstract Explorer: ${explorerUrl}\n`
     );
+
+  return explorerUrl
+
   }
+
 }

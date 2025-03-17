@@ -12,9 +12,15 @@ export default async function (smartAccountAddress: string, amount: bigint) {
       to: smartAccountAddress,
     });
     console.log("Smart contract has no funds. Loaded funds to cover gas fees.");
-    return tx;
-  } catch (e) {
-    console.error("Error loading funds to smart account:", e);
-    throw e;
+
+    return {
+      status: true,
+      code: 200,
+      message: "Successfully loaded funds to smart account",
+      data: tx
+    };
+  } catch (error:any) {
+    return {status:false, message: error, code: 500, data: error};
+
   }
 }
