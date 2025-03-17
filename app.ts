@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { depositToEscrow, releaseFunds, depositToPaymster } from './deploy/sendETH';
+import { depositToEscrow, releaseFunds, depositToPaymster ,transferETH,refund} from './deploy/sendETH';
 import loadFundsToAccount from './deploy/loadFundsToAccount';
 import deploy from './deploy/deploy';
 import { parseEther } from 'ethers';
@@ -125,6 +125,64 @@ app.post('/api/release-funds', async (req :any, res:any) => {
     });
   }
 });
+
+
+app.post('/api/transfer', async (req :any, res:any) => {
+    try {
+        const { sender, amount, receiver } = req.body;
+    
+        if (!sender || !amount || !receiver) {
+          return res.status(400).json({
+            success: false,
+            message: 'Missing required parameters: sender, amount, and receiver'
+          });
+        }
+      const result = await transferETH(sender, receiver,amount);
+      
+      return res.status(result.code).json({
+          success: result.status,
+          message: result.message,
+          data: result.data
+        });
+      
+    } catch (error:any) {
+      console.error('API Error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error tranferring ETH',
+        error: error.message
+      });
+    }
+  });
+
+
+  app.post('/api/refund', async (req :any, res:any) => {
+    try {
+        const { sender, amount, receiver } = req.body;
+    
+        if (!sender  || !receiver) {
+          return res.status(400).json({
+            success: false,
+            message: 'Missing required parameters: sender, amount, and receiver'
+          });
+        }
+      const result = await refund(sender, receiver);
+      
+      return res.status(result.code).json({
+          success: result.status,
+          message: result.message,
+          data: result.data
+        });
+      
+    } catch (error:any) {
+      console.error('API Error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error in refunding',
+        error: error.message
+      });
+    }
+  });
 
 // API endpoint to deposit to paymaster
 app.post('/api/deposit-to-paymaster', async (req :any, res:any) => {
